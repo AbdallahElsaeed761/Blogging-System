@@ -1,6 +1,11 @@
+using BloggingSystem.BL.Bases;
+using BloggingSystem.BL.Interfaces;
+using BloggingSystem.BL.Services;
+using BloggingSystem.DAL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,15 +30,37 @@ namespace BloggingSystem.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling =
+Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-            //services.AddDbContext<ShopifyContext>(op =>
-            //{
-            //    op.UseSqlServer(Configuration.GetConnectionString("myconnection"));
-            //    // op.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("myconnection"));
+            //services.AddDbContext<applicationDbContext>(option => {
 
+            //    option.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("CS"),
+            //        options => options.EnableRetryOnFailure());
             //});
+
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            services.AddTransient<AccountServices>();
+            services.AddTransient<ArticleServices>();
+            services.AddTransient<CategoryServices>();
+            services.AddTransient<CommentServices>();
+            services.AddTransient<RoleServices>();
+            
+
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
+            
+
+            
+
 
             services.AddSwaggerGen(c =>
             {
@@ -53,7 +80,14 @@ namespace BloggingSystem.WebApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors(
+                options => options
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials());
 
             app.UseEndpoints(endpoints =>
             {

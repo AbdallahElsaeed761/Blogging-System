@@ -80,7 +80,8 @@ namespace BloggingSystem.DAL
 
         //}
         public applicationDbContext() :
-          base("Data Source =DESKTOP-GF4P384\\ABDALLAHSQL; Initial Catalog = BloggingSystem; Integrated Security = True")
+         // base("Data Source =DESKTOP-GF4P384\\ABDALLAHSQL; Initial Catalog = BloggingSystem; Integrated Security = True")
+         base("name=CS")
         {
 
         }
